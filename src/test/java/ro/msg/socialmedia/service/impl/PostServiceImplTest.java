@@ -2,6 +2,7 @@ package ro.msg.socialmedia.service.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -37,13 +38,16 @@ class PostServiceImplTest {
     @Spy
     PostDto dto2;
 
-    @Test
-    void testCreatePost() {
+    @BeforeEach
+    void beforeEachTest(){
         when(dto1.getId()).thenReturn(1L);
         when(dto1.getTitle()).thenReturn("Title 1");
         when(dto1.getDescription()).thenReturn("Description 1");
         when(dto1.getContent()).thenReturn("Content 1");
+    }
 
+    @Test
+    void testCreatePost() {
         log.info("Dto: {} {} {} {}", dto1.getId(), dto1.getTitle(), dto1.getDescription(), dto1.getContent());
 
         PostDto returnedPostDto = service.createPost(dto1);
@@ -60,9 +64,8 @@ class PostServiceImplTest {
     }
 
     @Test
-    @Sql(scripts = "test-scripts/insert-into-posts.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "delete-from-posts.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Transactional
     void testGetAllPostById() {
-        assertEquals(99L, service.getPostById(99L).getId());
+        assertEquals(1L, service.getPostById(1L).getId());
     }
 }

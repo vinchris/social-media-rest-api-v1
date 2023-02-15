@@ -1,1 +1,0 @@
-INSERT INTO POSTS (id, title, content, description) VALUES (99, "Title 99", "Content 99", "Description 99");
