@@ -1,6 +1,7 @@
 package ro.msg.socialmedia.service;
 
 import ro.msg.socialmedia.payload.PostDto;
+import ro.msg.socialmedia.payload.PostResponse;
 
 import java.util.List;
 
@@ -8,7 +9,7 @@ public interface PostService {
 
     PostDto createPost(PostDto postDto);
 
-    List<PostDto> getAllPosts(int PageNo, int pageSize);
+    PostResponse getAllPosts(int PageNo, int pageSize, String sortBy, String sortDir);
 
     PostDto getPostById(Long id);
 

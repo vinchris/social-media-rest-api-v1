@@ -60,7 +60,7 @@ class PostServiceImplTest {
 
     @Test
     void testGetAllPosts() {
-        assertEquals(false, service.getAllPosts().isEmpty());
+        assertEquals(0, service.getAllPosts(0,1,"id").getPageNo());
     }
 
     @Test

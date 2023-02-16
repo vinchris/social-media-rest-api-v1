@@ -4,11 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ro.msg.socialmedia.dao.entities.Post;
 import ro.msg.socialmedia.dao.repositories.PostRepository;
 import ro.msg.socialmedia.exceptions.ResourceNotFoundException;
 import ro.msg.socialmedia.payload.PostDto;
+import ro.msg.socialmedia.payload.PostResponse;
 import ro.msg.socialmedia.service.PostService;
 
 import java.util.List;
@@ -65,15 +67,27 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDto> getAllPosts(int pageNo, int pageSize) {
+    public PostResponse getAllPosts(int pageNo, int pageSize, String sortBy, String sortDir) {
+        // create Sort instance
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         // create Pageable instance
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
         Page<Post> posts = postRepository.findAll(pageable);
 
         // get content for page object
         List<Post> listOfPosts = posts.getContent();
 
-        return listOfPosts.stream().map(post -> mapToDto(post)).collect(Collectors.toList());
+        List<PostDto> content = listOfPosts.stream().map(post -> mapToDto(post)).collect(Collectors.toList());
+
+        PostResponse postResponse = new PostResponse();
+        postResponse.setContent(content);
+        postResponse.setPageNo(posts.getNumber());
+        postResponse.setPageSize(posts.getSize());
+        postResponse.setTotalPages(posts.getTotalPages());
+        postResponse.setTotalElements(posts.getTotalElements());
+        postResponse.setLast(posts.isLast());
+
+        return postResponse;
     }
 
     /**
