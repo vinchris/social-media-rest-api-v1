@@ -10,6 +10,7 @@ import ro.msg.socialmedia.payload.PostResponse;
 import ro.msg.socialmedia.service.CommentService;
 import ro.msg.socialmedia.service.PostService;
 import ro.msg.socialmedia.utils.AppConstants;
+import ro.msg.socialmedia.utils.ResourceExceptionConstants;
 
 import java.util.List;
 
@@ -40,5 +41,11 @@ public class CommentController {
     public ResponseEntity<CommentDto> updateComment(@PathVariable(value = "postId") Long postId, @PathVariable(value = "id") Long commentId, @RequestBody CommentDto commentDtoRequest) {
         CommentDto commentDto = commentService.updateComment(postId, commentId, commentDtoRequest);
         return new ResponseEntity<>(commentDto, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/posts/{postId}/comments/{id}")
+    public ResponseEntity<String> deleteComment(@PathVariable(value = "postId") Long postId, @PathVariable(value = "id") Long commentId){
+        commentService.deleteComment(postId, commentId);
+        return new ResponseEntity<>("Comment deleted successfully", HttpStatus.OK);
     }
 }

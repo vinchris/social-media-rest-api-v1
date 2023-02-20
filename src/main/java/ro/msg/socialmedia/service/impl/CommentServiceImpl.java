@@ -12,6 +12,7 @@ import ro.msg.socialmedia.exceptions.ResourceNotFoundException;
 import ro.msg.socialmedia.payload.CommentDto;
 import ro.msg.socialmedia.payload.PostDto;
 import ro.msg.socialmedia.service.CommentService;
+import ro.msg.socialmedia.utils.ResourceExceptionConstants;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,16 +46,16 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentDto> getAllComments(Long postId) {
         List<Comment> commentList = commentRepository.findByPostId(postId);
-        return commentList.stream().map(comment -> mapToDto(comment)).collect(Collectors.toList());
+        return commentList.stream().map(comment -> mapToDto(comment)).toList();
     }
 
     @Override
     public CommentDto getCommentById(Long postId, Long commentId) {
         // retrieve post entity by id
-        Post post = Optional.of(postRepository.getReferenceById(postId)).orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId.toString()));
+        Post post = getPost(postId);
 
         // retrieve comment by comment id
-        Comment comment = Optional.of(commentRepository.getReferenceById(commentId)).orElseThrow(() -> new ResourceNotFoundException("Comment", "id", commentId.toString()));
+        Comment comment = getComment(commentId);
 
         if (!comment.getPost().getId().equals(post.getId())) {
             throw new BlogAPIException(HttpStatus.BAD_REQUEST, "Comment does not belong to post");
@@ -66,10 +67,10 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDto updateComment(Long postId, Long commentId, CommentDto commentRequest) {
         // retrieve post entity by id
-        Post post = Optional.of(postRepository.getReferenceById(postId)).orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId.toString()));
+        Post post = getPost(postId);
 
         // retrieve comment by comment id
-        Comment comment = Optional.of(commentRepository.getReferenceById(commentId)).orElseThrow(() -> new ResourceNotFoundException("Comment", "id", commentId.toString()));
+        Comment comment = getComment(commentId);
 
         if (!comment.getPost().getId().equals(post.getId())) {
             throw new BlogAPIException(HttpStatus.BAD_REQUEST, "Comment does not belong to post");
@@ -77,18 +78,54 @@ public class CommentServiceImpl implements CommentService {
 
         comment.setName(commentRequest.getName());
         comment.setEmail(commentRequest.getEmail());
-        comment.setBody(comment.getBody());
+        comment.setBody(commentRequest.getBody());
 
         Comment updatedComment = commentRepository.save(comment);
 
         return mapToDto(updatedComment);
     }
 
+    @Override
+    public void deleteComment(Long postId, Long commentId) {
+        // retrieve post entity by id
+        Post post = getPost(postId);
+
+        // retrieve comment by comment id
+        Comment comment = getComment(commentId);
+
+        if (!comment.getPost().getId().equals(post.getId())) {
+            throw new BlogAPIException(HttpStatus.BAD_REQUEST, "Comment does not belong to post");
+        }
+
+        commentRepository.delete(comment);
+    }
+
+
+    /**
+     * helper method to retrieve a post entity by post id
+     * @param postId
+     * @return Post
+     */
+    private Post getPost(Long postId) {
+        Post post = Optional.of(postRepository.getReferenceById(postId)).orElseThrow(() -> new ResourceNotFoundException(ResourceExceptionConstants.POST, "id", postId.toString()));
+        return post;
+    }
+
+    /**
+     * helper method to retrieve a comment entity by comment id
+     * @param commentId
+     * @return Comment
+     */
+    private Comment getComment(Long commentId) {
+        Comment comment = Optional.of(commentRepository.getReferenceById(commentId)).orElseThrow(() -> new ResourceNotFoundException(ResourceExceptionConstants.COMMENT, "id", commentId.toString()));
+        return comment;
+    }
+
     /**
      * helper method to map a post dto to a comment entity
      *
      * @param dto
-     * @return
+     * @return Comment
      */
     private Comment mapToEntity(CommentDto dto) {
         Comment comment = new Comment();
@@ -104,14 +141,14 @@ public class CommentServiceImpl implements CommentService {
      * helper method to map a comment entity to a post dto
      *
      * @param comment
-     * @return
+     * @return CommentDto
      */
     private CommentDto mapToDto(Comment comment) {
         CommentDto dto = new CommentDto();
         dto.setId(comment.getId());
         dto.setBody(comment.getBody());
-        dto.setEmail(dto.getEmail());
-        dto.setName(dto.getName());
+        dto.setEmail(comment.getEmail());
+        dto.setName(comment.getName());
 
         return dto;
     }
