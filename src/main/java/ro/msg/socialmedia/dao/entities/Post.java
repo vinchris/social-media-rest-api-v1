@@ -1,16 +1,17 @@
 package ro.msg.socialmedia.dao.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity(name = "posts")
 @Table(name = "posts", uniqueConstraints = {@UniqueConstraint(columnNames = {"title"})})
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Post {
@@ -28,6 +29,7 @@ public class Post {
     @Column(name = "content", nullable = false)
     private String content;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true) // orphan removal, when we remove parent we remove the comments associated with it also
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    // orphan removal, when we remove parent we remove the comments associated with it also
     private Set<Comment> comments = new HashSet<>();
 }

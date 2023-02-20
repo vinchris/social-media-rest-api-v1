@@ -1,5 +1,6 @@
 package ro.msg.socialmedia.service.impl;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,9 @@ public class CommentServiceImpl implements CommentService {
 
     @Autowired
     PostRepository postRepository;
+
+    @Autowired
+    ModelMapper mapper;
 
     @Override
     public CommentDto createComment(Long postId, CommentDto commentDto) {
@@ -128,11 +132,13 @@ public class CommentServiceImpl implements CommentService {
      * @return Comment
      */
     private Comment mapToEntity(CommentDto dto) {
-        Comment comment = new Comment();
-        comment.setId(dto.getId());
-        comment.setBody(dto.getBody());
-        comment.setName(dto.getName());
-        comment.setEmail(dto.getEmail());
+        Comment comment = mapper.map(dto, Comment.class);
+
+//        Comment comment = new Comment();
+//        comment.setId(dto.getId());
+//        comment.setBody(dto.getBody());
+//        comment.setName(dto.getName());
+//        comment.setEmail(dto.getEmail());
 
         return comment;
     }
@@ -144,11 +150,13 @@ public class CommentServiceImpl implements CommentService {
      * @return CommentDto
      */
     private CommentDto mapToDto(Comment comment) {
-        CommentDto dto = new CommentDto();
-        dto.setId(comment.getId());
-        dto.setBody(comment.getBody());
-        dto.setEmail(comment.getEmail());
-        dto.setName(comment.getName());
+        CommentDto dto = mapper.map(comment, CommentDto.class);
+
+//        CommentDto dto = new CommentDto();
+//        dto.setId(comment.getId());
+//        dto.setBody(comment.getBody());
+//        dto.setEmail(comment.getEmail());
+//        dto.setName(comment.getName());
 
         return dto;
     }

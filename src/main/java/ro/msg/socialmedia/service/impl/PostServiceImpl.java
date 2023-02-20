@@ -1,5 +1,6 @@
 package ro.msg.socialmedia.service.impl;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +24,9 @@ public class PostServiceImpl implements PostService {
     @Autowired
     PostRepository postRepository;
 
+    @Autowired
+    ModelMapper mapper;
+
     @Override
     public PostDto createPost(PostDto postDto) {
         // convert dto to entity
@@ -38,7 +42,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto getPostById(Long id) {
         // get entity by id or else throw exception
-        Post post = Optional.ofNullable(postRepository.getReferenceById(id)).orElseThrow(()-> new ResourceNotFoundException("Post","id",id.toString()));
+        Post post = Optional.ofNullable(postRepository.getReferenceById(id)).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id.toString()));
 
         // return new postDto instance
         return mapToDto(post);
@@ -47,7 +51,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto updatePost(PostDto dto, Long id) {
         // get entity by id or else throw exception
-        Post post = Optional.ofNullable(postRepository.getReferenceById(id)).orElseThrow(()-> new ResourceNotFoundException("Post","id",id.toString()));
+        Post post = Optional.ofNullable(postRepository.getReferenceById(id)).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id.toString()));
 
         post.setTitle(dto.getTitle());
         post.setContent(dto.getContent());
@@ -61,7 +65,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public void deletePostById(Long id) {
         // get entity by id or else throw exception
-        Post post = Optional.of(postRepository.getReferenceById(id)).orElseThrow(()-> new ResourceNotFoundException("Post","id",id.toString()));
+        Post post = Optional.of(postRepository.getReferenceById(id)).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id.toString()));
 
         postRepository.delete(post);
     }
@@ -92,30 +96,40 @@ public class PostServiceImpl implements PostService {
 
     /**
      * helper method to map a post dto to a post entity
+     *
      * @param dto
      * @return
      */
     private Post mapToEntity(PostDto dto) {
-        Post post = new Post();
-        post.setId(dto.getId());
-        post.setTitle(dto.getTitle());
-        post.setContent(dto.getContent());
-        post.setDescription(dto.getDescription());
+        // mapping using ModelMapper
+        Post post = mapper.map(dto, Post.class);
+
+        // hardcoded mapping
+//        Post post = new Post();
+//        post.setId(dto.getId());
+//        post.setTitle(dto.getTitle());
+//        post.setContent(dto.getContent());
+//        post.setDescription(dto.getDescription());
 
         return post;
     }
 
     /**
      * helper method to map a post entity to a post dto
+     *
      * @param post
      * @return
      */
     private PostDto mapToDto(Post post) {
-        PostDto postDto = new PostDto();
-        postDto.setId(post.getId());
-        postDto.setTitle(post.getTitle());
-        postDto.setContent(post.getContent());
-        postDto.setDescription(post.getDescription());
+        // mapping using ModelMapper
+        PostDto postDto = mapper.map(post, PostDto.class);
+
+        // hardcoded mapping
+//        PostDto postDto = new PostDto();
+//        postDto.setId(post.getId());
+//        postDto.setTitle(post.getTitle());
+//        postDto.setContent(post.getContent());
+//        postDto.setDescription(post.getDescription());
 
         return postDto;
     }
